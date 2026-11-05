@@ -1,0 +1,18 @@
+# 编译产物
+AutoClicker.exe
+*.pdb
+*.obj
+
+# 运行时数据（exe 旁边的便携目录，不进仓库）
+数据/
+macos/build/
+*.app
+*.log
+
+# 编辑器 / 系统
+.vs/
+.idea/
+*.user
+*.suo
+Thumbs.db
+desktop.ini
