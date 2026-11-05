@@ -1,5 +1,11 @@
 # 鼠标连点器
 
+[![版本](https://img.shields.io/github/v/release/dengsy1993/AutoClicker?style=flat-square&label=release&color=4F8EF7)](https://github.com/dengsy1993/AutoClicker/releases/latest)
+[![下载量](https://img.shields.io/github/downloads/dengsy1993/AutoClicker/total?style=flat-square&label=downloads&color=4F8EF7)](https://github.com/dengsy1993/AutoClicker/releases)
+[![构建](https://github.com/dengsy1993/AutoClicker/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/dengsy1993/AutoClicker/actions/workflows/build.yml)
+[![平台](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-4F8EF7?style=flat-square)](#)
+[![许可证](https://img.shields.io/github/license/dengsy1993/AutoClicker?style=flat-square&color=4F8EF7)](LICENSE.txt)
+
 Windows 上的自动点击工具：按你排好的步骤，自动移动鼠标、点击、滚动、按键。
 网页游戏挂机、重复点按钮、批量填表这类「手不能停」的活儿都适合。
 
@@ -12,7 +18,7 @@ Windows 上的自动点击工具：按你排好的步骤，自动移动鼠标、
 - **全局快捷键**、**录制回放**、**历史序列**、**输入自检**
 - **配置跟着程序走**：整个文件夹拷到别的电脑就能继续用
 
-> 当前版本 **v1.00.0** ｜ [下载最新版](../../releases/latest) ｜ [macOS 版](macos/README.md)
+> **下载**：[最新版](../../releases/latest)　·　**macOS 版**：[说明](macos/README.md)　·　**遇到问题**：[提 Issue](../../issues)
 
 ---
 
