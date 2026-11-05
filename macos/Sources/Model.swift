@@ -9,6 +9,7 @@ import Foundation
 
 enum ActionKind: String, Codable {
     case click
+    case wheel
     case wait
 }
 
@@ -31,11 +32,15 @@ struct MacroAction: Codable {
     var x: Int = 0
     var y: Int = 0
     var button: MouseButtonKind = .left
+    /// 滚轮：正数向上、负数向下，单位是「格」
+    var wheelDelta: Int = -3
 
     var title: String {
         switch kind {
         case .click:
             return "\(button.name)单击 (\(x), \(y))"
+        case .wheel:
+            return "滚轮 向\(wheelDelta >= 0 ? "上" : "下") \(abs(wheelDelta)) 格 (\(x), \(y))"
         case .wait:
             return "等待 \(waitMs) ms"
         }

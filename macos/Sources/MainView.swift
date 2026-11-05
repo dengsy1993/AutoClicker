@@ -28,7 +28,7 @@ final class ActionList: NSView {
     var selectedIndex: Int = -1
     var onSelect: ((Int) -> Void)?
     var onToggle: ((Int) -> Void)?
-    var onEditWait: ((Int) -> Void)?
+    var onEdit: ((Int) -> Void)?
 
     let rowHeight: CGFloat = 34
 
@@ -129,7 +129,7 @@ final class ActionList: NSView {
         }
         onSelect?(row)
         if event.clickCount == 2 {
-            onEditWait?(row)
+            onEdit?(row)
         }
     }
 }
@@ -222,16 +222,17 @@ final class MainView: NSView {
             self.persist()
             self.listView.needsDisplay = true
         }
-        listView.onEditWait = { [weak self] index in
-            self?.editWait(at: index)
+        listView.onEdit = { [weak self] index in
+            self?.editAction(at: index)
         }
 
         addButton("添加点击", x: 20, y: 396, w: 96) { [weak self] in self?.addClick() }
-        addButton("添加等待", x: 122, y: 396, w: 96) { [weak self] in self?.addWait() }
-        addButton("删除", x: 224, y: 396, w: 76) { [weak self] in self?.deleteSelected() }
-        addButton("上移", x: 306, y: 396, w: 54) { [weak self] in self?.move(-1) }
-        addButton("下移", x: 366, y: 396, w: 54) { [weak self] in self?.move(1) }
-        addButton("用鼠标位置更新 (F7)", x: 430, y: 396, w: 160) { [weak self] in self?.updateFromMouse() }
+        addButton("添加滚轮", x: 122, y: 396, w: 96) { [weak self] in self?.addWheel() }
+        addButton("添加等待", x: 224, y: 396, w: 96) { [weak self] in self?.addWait() }
+        addButton("删除", x: 326, y: 396, w: 66) { [weak self] in self?.deleteSelected() }
+        addButton("上移", x: 398, y: 396, w: 50) { [weak self] in self?.move(-1) }
+        addButton("下移", x: 454, y: 396, w: 50) { [weak self] in self?.move(1) }
+        addButton("用鼠标位置更新 (F7)", x: 512, y: 396, w: 168) { [weak self] in self?.updateFromMouse() }
 
         addLabel("循环次数", x: 20, y: 442, w: 70)
         addNumberField(loopField, x: 92, y: 438, w: 80)
@@ -401,6 +402,21 @@ final class MainView: NSView {
         refreshStatus()
     }
 
+    private func addWheel() {
+        let p = InputEngine.mouseLocation()
+        var action = MacroAction()
+        action.kind = .wheel
+        action.x = Int(p.x.rounded())
+        action.y = Int(p.y.rounded())
+        action.wheelDelta = -3
+        action.waitMs = 120
+        settings.actions.append(action)
+        listView.selectedIndex = settings.actions.count - 1
+        persist()
+        refreshList()
+        refreshStatus()
+    }
+
     private func addWait() {
         var action = MacroAction()
         action.kind = .wait
@@ -443,8 +459,9 @@ final class MainView: NSView {
             alertUser(title: "先选一个动作", text: "在列表里点一下要更新的动作，再按 F7。")
             return
         }
-        guard settings.actions[index].kind == .click else {
-            alertUser(title: "不是点击动作", text: "只有点击动作有坐标。")
+        let kind = settings.actions[index].kind
+        guard kind == .click || kind == .wheel else {
+            alertUser(title: "这个动作没有坐标", text: "只有点击和滚轮动作有坐标。")
             return
         }
         let p = InputEngine.mouseLocation()
@@ -452,6 +469,68 @@ final class MainView: NSView {
         settings.actions[index].y = Int(p.y.rounded())
         persist()
         refreshList()
+    }
+
+    private func editAction(at index: Int) {
+        guard index >= 0 && index < settings.actions.count else {
+            return
+        }
+        if settings.actions[index].kind == .wheel {
+            editWheel(at: index)
+        } else {
+            editWait(at: index)
+        }
+    }
+
+    private func editWheel(at index: Int) {
+        guard index >= 0 && index < settings.actions.count else {
+            return
+        }
+        let current = settings.actions[index]
+
+        let accessory = NSView(frame: NSRect(x: 0, y: 0, width: 280, height: 66))
+
+        let dirPopup = NSPopUpButton(frame: NSRect(x: 0, y: 34, width: 120, height: 26), pullsDown: false)
+        dirPopup.addItems(withTitles: ["向上滚动", "向下滚动"])
+        dirPopup.selectItem(at: current.wheelDelta >= 0 ? 0 : 1)
+
+        let countField = NSTextField(frame: NSRect(x: 128, y: 35, width: 60, height: 24))
+        countField.stringValue = String(max(1, abs(current.wheelDelta)))
+
+        let countLabel = NSTextField(labelWithString: "格")
+        countLabel.frame = NSRect(x: 194, y: 39, width: 30, height: 18)
+
+        let waitLabel = NSTextField(labelWithString: "动作后等待")
+        waitLabel.frame = NSRect(x: 0, y: 8, width: 70, height: 18)
+
+        let waitField = NSTextField(frame: NSRect(x: 76, y: 4, width: 60, height: 24))
+        waitField.stringValue = String(current.waitMs)
+
+        let waitUnit = NSTextField(labelWithString: "ms")
+        waitUnit.frame = NSRect(x: 142, y: 8, width: 24, height: 18)
+
+        accessory.addSubview(dirPopup)
+        accessory.addSubview(countField)
+        accessory.addSubview(countLabel)
+        accessory.addSubview(waitLabel)
+        accessory.addSubview(waitField)
+        accessory.addSubview(waitUnit)
+
+        let alert = NSAlert()
+        alert.messageText = "编辑滚轮动作"
+        alert.informativeText = "方向 + 格数；坐标可以用 F7 从当前鼠标位置更新。"
+        alert.addButton(withTitle: "确定")
+        alert.addButton(withTitle: "取消")
+        alert.accessoryView = accessory
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            let count = max(1, Int(countField.stringValue) ?? abs(current.wheelDelta))
+            let up = dirPopup.indexOfSelectedItem == 0
+            settings.actions[index].wheelDelta = up ? count : -count
+            settings.actions[index].waitMs = max(0, Int(waitField.stringValue) ?? current.waitMs)
+            persist()
+            refreshList()
+        }
     }
 
     private func editWait(at index: Int) {

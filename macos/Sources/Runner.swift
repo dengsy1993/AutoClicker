@@ -113,6 +113,11 @@ final class Runner {
                     _ = InputEngine.click(at: point, button: action.button, holdMs: settings.holdMs)
                     doneCount += 1
                     notify()
+                } else if action.kind == .wheel {
+                    let point = CGPoint(x: action.x, y: action.y)
+                    _ = InputEngine.wheel(at: point, notches: action.wheelDelta)
+                    doneCount += 1
+                    notify()
                 }
 
                 if !sleep(ms: action.waitMs) {

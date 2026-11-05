@@ -47,6 +47,34 @@ enum InputEngine {
         return true
     }
 
+    /// 发滚轮。notches 正数向上、负数向下，单位是「格」（和 Windows 版对齐）。
+    @discardableResult
+    static func wheel(notches: Int) -> Bool {
+        guard notches != 0 else {
+            return false
+        }
+        let source = CGEventSource(stateID: .hidSystemState)
+        guard let event = CGEvent(
+            scrollWheelEvent2Source: source,
+            units: .line,
+            wheelCount: 1,
+            wheel1: Int32(notches),
+            wheel2: 0,
+            wheel3: 0
+        ) else {
+            return false
+        }
+        event.post(tap: .cghidEventTap)
+        return true
+    }
+
+    /// 先移到目标位置再滚 —— 滚轮是发给光标所在窗口的，不移动可能滚错地方。
+    @discardableResult
+    static func wheel(at point: CGPoint, notches: Int) -> Bool {
+        _ = move(to: point)
+        usleep(useconds_t(12 * 1000))
+        return wheel(notches: notches)
+    }
     /// 在指定位置点一下（按下 → 等 holdMs → 抬起）。
     @discardableResult
     static func click(at point: CGPoint, button: MouseButtonKind, holdMs: Int) -> Bool {
