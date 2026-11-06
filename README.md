@@ -1,7 +1,6 @@
 # 鼠标连点器
 
 [![版本](https://img.shields.io/github/v/release/dengsy1993/AutoClicker?style=flat-square&label=release&color=4F8EF7)](https://github.com/dengsy1993/AutoClicker/releases/latest)
-[![下载量](https://img.shields.io/github/downloads/dengsy1993/AutoClicker/total?style=flat-square&label=downloads&color=4F8EF7)](https://github.com/dengsy1993/AutoClicker/releases)
 [![构建](https://github.com/dengsy1993/AutoClicker/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/dengsy1993/AutoClicker/actions/workflows/build.yml)
 [![平台](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-4F8EF7?style=flat-square)](#)
 [![许可证](https://img.shields.io/github/license/dengsy1993/AutoClicker?style=flat-square&color=4F8EF7)](LICENSE.txt)
